@@ -12,16 +12,24 @@ import ghidra.program.model.pcode.JumpTable;
 import ghidra.program.model.symbol.*;
 
 public class ActuallyUsableSwitchOverride extends GhidraScript {
+	// TODO(spotlightishere): Migrate from hardcoded addresses to something intrinsics-based
+	// e.g. use branch searching logic in FindUnrecoveredSwitchesScript
+	static String BRANCH_INSTRUCTION = "0x800aa8ac";
+	// TODO(spotlightishere): determine table address based on current cursor? or, from selected branch instr?
+	static String TABLE_ADDRESS = "0x8034329c";
+	// TODO(spotlightishere): Find clean way to determine table length
+	static int TABLE_LENGTH = 1341;
+	
 	public void run() throws Exception {		
-		// Our branch instruction is 0x800aa8ac.
-		Address branchInstruction = parseAddress("0x800aa8ac");
+		// Our branch instruction is provided by the user.
+		Address branchInstruction = parseAddress(BRANCH_INSTRUCTION);
 		
 		// Our jump table begins at 0x8034329c, containing 1341 pointers.
 		// We need to obtain all values within the table to create a JumpTable later on.
 		ArrayList<Address> jumpTable = new ArrayList<Address>();
-		Address tableAddress = parseAddress("0x8034329c");
+		Address tableAddress = parseAddress(TABLE_ADDRESS);
 
-		for (int i = 0; i < 1341; i++) {
+		for (int i = 0; i < TABLE_LENGTH; i++) {
 			// Resolve our current entry's value.
 			Data currentEntry = getDataAt(tableAddress);
 			if (currentEntry == null) {
