@@ -12,7 +12,6 @@ import ghidra.program.model.pcode.JumpTable;
 import ghidra.program.model.symbol.*;
 
 public class ActuallyUsableSwitchOverride extends GhidraScript {
-
 	public void run() throws Exception {		
 		// Our branch instruction is 0x800aa8ac.
 		Address branchInstruction = parseAddress("0x800aa8ac");
@@ -23,13 +22,11 @@ public class ActuallyUsableSwitchOverride extends GhidraScript {
 		Address tableAddress = parseAddress("0x8034329c");
 
 		for (int i = 0; i < 1341; i++) {
-			println("Out here at iter " + i);
-			println("Currently processing " + tableAddress.toString());
-			
 			// Resolve our current entry's value.
 			Data currentEntry = getDataAt(tableAddress);
 			if (currentEntry == null) {
-				println("There is no data defined at " + tableAddress.toString() + ". Verify you have the table address configured properly.");
+				println("There is no data defined at " + tableAddress.toString() + ".");
+				println("Verify you have the table address configured properly.");
 				return;
 			}
 			
@@ -37,10 +34,12 @@ public class ActuallyUsableSwitchOverride extends GhidraScript {
 			// Determine what our pointer is, er, pointing to.
 			Reference[] references = currentEntry.getReferencesFrom();
 			if (references.length == 0) {
-				println("The pointer at " + tableAddress.toString() + " does not reference a value. Is it a pointer?");
+				println("The pointer at " + tableAddress.toString() + " does not reference a value.");
+				println("Is it a pointer?");
 				return;
 			} else if (references.length != 1) {
-				println("The pointer at " + tableAddress.toString() + " references multiple values. Is it properly set up?");
+				println("The pointer at " + tableAddress.toString() + " references multiple values.");
+				println("Is it properly set up?");
 				return;
 			}
 						
@@ -71,5 +70,4 @@ public class ActuallyUsableSwitchOverride extends GhidraScript {
 		// Fix up the body now that there are jump references.
 		CreateFunctionCmd.fixupFunctionBody(currentProgram, function, monitor);
 	}
-
 }
