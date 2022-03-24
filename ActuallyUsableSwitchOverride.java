@@ -29,6 +29,9 @@ public class ActuallyUsableSwitchOverride extends GhidraScript {
 		ArrayList<Address> jumpTable = new ArrayList<Address>();
 		Address tableAddress = parseAddress(TABLE_ADDRESS);
 
+		// Used to determine functions.
+		FunctionManager manager = currentProgram.getFunctionManager();
+		
 		for (int i = 0; i < TABLE_LENGTH; i++) {
 			// Resolve our current entry's value.
 			Data currentEntry = getDataAt(tableAddress);
@@ -50,9 +53,18 @@ public class ActuallyUsableSwitchOverride extends GhidraScript {
 				println("Is it properly set up?");
 				return;
 			}
-						
+			
+			Address pointerValue = references[0].getToAddress();
+			
+			// Ghidra may mistakenly analyze larger routines as their own function.
+			// We need to remove this as a function in order to add it to our table.
+			if (manager.isInFunction(pointerValue)) {
+				manager.removeFunction(pointerValue);
+			}
+			
+			
 			// Track this reference.
-			jumpTable.add(references[0].getToAddress());
+			jumpTable.add(pointerValue);
 			
 			
 			// Move on to the next pointer.
